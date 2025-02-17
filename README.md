@@ -6,7 +6,6 @@ A Prometheus exporter that collects SSL/TLS certificate metrics from remote endp
 
 - Monitors SSL/TLS certificates from multiple remote endpoints
 - Provides metrics about certificate expiration time
-- Supports custom configuration for different monitoring scenarios
 - Prometheus metrics exposed on HTTP endpoint
 - Health check endpoint
 - Configurable through YAML configuration file
@@ -15,9 +14,9 @@ A Prometheus exporter that collects SSL/TLS certificate metrics from remote endp
 
 The exporter provides the following metrics:
 
-- `ssl_certificate_expiry_seconds`: Time remaining until certificate expiration (in seconds)
-- `ssl_certificate_not_after_timestamp`: Unix timestamp when the certificate expires
-- `ssl_certificate_scrape_errors_total`: Counter of scraping errors by host
+- `ssl_certificate_expiry_seconds{host="example.com",issuer="...",subject="..."}`: Time remaining until certificate expiration (in seconds)
+- `ssl_certificate_not_after_timestamp{host="example.com",issuer="...",subject="..."}`: Unix timestamp when the certificate expires
+- `ssl_certificate_scrape_errors_total{host="example.com"}`: Counter of scraping errors by host
 
 ## Installation
 
@@ -49,6 +48,8 @@ make docker
 Default ports and paths:
 - Listen address: `:9117`
 - Metrics path: `/metrics`
+- Health check: `/health`
+- Probe endpoint: `/probe`
 
 ### Configuration
 
@@ -67,15 +68,6 @@ modules:
       key_file: "/path/to/key"
 ```
 
-Configuration options:
-- `prober`: Protocol to use (tcp or http)
-- `timeout`: Overall timeout for the check
-- `port`: Default port if not specified in target
-- `proxy_url`: Optional HTTP proxy
-- `validate_chain`: Whether to validate the entire certificate chain
-- `insecure_skip_verify`: Skip certificate validation (not recommended for production)
-- `client_cert`: Optional client certificate configuration
-
 ### Command Line Flags
 
 - `--web.listen-address`: Address to listen on for telemetry (default: ":9117")
@@ -84,38 +76,8 @@ Configuration options:
 
 ## Development
 
-### Running Tests
-
-```bash
-make test
-```
-
-### Code Coverage
-
-```bash
-make coverage
-```
-
-### Linting
-
-```bash
-make lint
-```
+For development setup, testing, and contribution guidelines, please see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-MIT License
-
-This project is open source and available under the MIT License. You are free to use, modify, and distribute this software, provided that you include the original copyright notice and attribution in any copies or substantial portions of the software.
-
-## Contributing
-
-1. Fork the repository
-2. Create a new branch for your feature or bug fix (`git checkout -b feature/your-feature-name`)
-3. Make your changes
-4. Ensure all tests pass by running `make test`
-5. Commit your changes
-6. Push to your fork
-7. Submit a Pull Request
-
-Please ensure your PR description clearly describes the changes and the motivation for the changes.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
