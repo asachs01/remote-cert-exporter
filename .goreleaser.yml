@@ -17,8 +17,8 @@ builds:
 
 dockers:
   - image_templates:
-      - "asachs01/remote-cert-exporter:{{ .Version }}"
-      - "asachs01/remote-cert-exporter:latest"
+      - "aaronsachs/remote-cert-exporter:{{ .Version }}"
+      - "aaronsachs/remote-cert-exporter:latest"
       - "ghcr.io/asachs01/remote-cert-exporter:{{ .Version }}"
       - "ghcr.io/asachs01/remote-cert-exporter:latest"
     dockerfile: Dockerfile
