@@ -33,5 +33,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
+    - name: Install golangci-lint
+      uses: golangci/golangci-lint-action@v4
+      with:
+        version: latest
+
     - name: Run linter fix
-      run: golangci-lint run --fix 
+      run: golangci-lint run --fix
+
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add -A
+        git diff --quiet && git diff --staged --quiet || git commit -m "auto: fix linting issues"
+
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }} 
