@@ -28,6 +28,14 @@ dockers:
       - "--label=org.opencontainers.image.title=remote-cert-exporter"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
+    extra_files:
+      - go.mod
+      - go.sum
+      - "*.go"
+      - "config/*"
+      - "collector/*"
+      - "logger/*"
+      - "middleware/*"
 
 archives:
   - format: tar.gz
