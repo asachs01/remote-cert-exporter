@@ -1,3 +1,5 @@
+[![Test](https://github.com/asachs01/remote-cert-exporter/actions/workflows/test.yml/badge.svg)](https://github.com/asachs01/remote-cert-exporter/actions/workflows/test.yml)
+
 # Remote Certificate Exporter
 
 A Prometheus exporter that collects SSL/TLS certificate metrics from remote endpoints. This exporter helps monitor certificate expiration dates and provides alerts before certificates expire.
