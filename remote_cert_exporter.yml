@@ -1,0 +1,21 @@
+modules:
+  default:
+    prober: tcp
+    timeout: 5s
+    port: 443
+    validate_chain: true
+    insecure_skip_verify: false
+
+  http_proxy:
+    prober: tcp
+    timeout: 10s
+    proxy_url: "http://proxy.example.com:3128"
+    validate_chain: true
+
+  custom:
+    prober: tcp
+    timeout: 15s
+    port: 8443
+    client_cert:
+      cert_file: "/path/to/cert.pem"
+      key_file: "/path/to/key.pem" 

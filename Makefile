@@ -7,10 +7,10 @@ test:
 	go test -v ./...
 
 docker:
-	docker build -t cert-exporter .
+	docker build -t remote-cert-exporter .
 
 clean:
-	rm -f cert-exporter
+	rm -f remote-cert-exporter
 
 lint:
 	golangci-lint run

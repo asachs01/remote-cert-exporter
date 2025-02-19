@@ -45,6 +45,5 @@ dist/
 *.crt
 
 # Config files - usually want to ignore local configs but keep examples
-*.yml
-!example.yml
-!.goreleaser.yml
+.goreleaser.yml
+*config*.yml
