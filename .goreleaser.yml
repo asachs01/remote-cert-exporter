@@ -31,11 +31,11 @@ dockers:
     extra_files:
       - go.mod
       - go.sum
-      - "*.go"
-      - "config/*"
-      - "collector/*"
-      - "logger/*"
-      - "middleware/*"
+      - main.go
+      - config/
+      - collector/
+      - logger/
+      - middleware/
 
 archives:
   - format: tar.gz
