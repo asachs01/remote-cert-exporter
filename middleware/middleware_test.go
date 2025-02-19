@@ -19,8 +19,10 @@ func TestInstrumentHandler(t *testing.T) {
 
     // Create a test handler
     handler := InstrumentHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        w.WriteHeader(http.StatusOK)
-        w.Write([]byte("OK"))
+        _, err := w.Write([]byte("OK"))
+        if err != nil {
+            t.Errorf("Failed to write response: %v", err)
+        }
     }))
 
     // Create a test request

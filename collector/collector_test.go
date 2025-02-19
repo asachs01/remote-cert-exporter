@@ -32,7 +32,11 @@ func TestCertificateCollector(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Failed to start test server: %v", err)
 	}
-	defer listener.Close()
+	defer func() {
+		if err := listener.Close(); err != nil {
+			t.Errorf("Failed to close listener: %v", err)
+		}
+	}()
 
 	// Accept connections in background
 	go func() {
@@ -41,7 +45,9 @@ func TestCertificateCollector(t *testing.T) {
 			if err != nil {
 				return
 			}
-			conn.Close()
+			if err := conn.Close(); err != nil {
+				t.Errorf("Failed to close connection: %v", err)
+			}
 		}
 	}()
 

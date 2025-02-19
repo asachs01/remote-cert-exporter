@@ -40,7 +40,11 @@ modules:
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer os.Remove(tmpfile.Name())
+			defer func() {
+				if err := os.Remove(tmpfile.Name()); err != nil {
+					t.Errorf("Failed to remove temp file: %v", err)
+				}
+			}()
 
 			// Write config and check error
 			if _, err := tmpfile.Write([]byte(tc.configYaml)); err != nil {

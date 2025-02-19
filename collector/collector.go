@@ -8,6 +8,7 @@ import (
 
     "github.com/prometheus/client_golang/prometheus"
     "github.com/asachs01/remote-cert-exporter/config"
+    "github.com/asachs01/remote-cert-exporter/logger"
 )
 
 type CertificateCollector struct {
@@ -120,7 +121,12 @@ func (c *CertificateCollector) Collect(ch chan<- prometheus.Metric) {
         )
         return
     }
-    defer conn.Close()
+    defer func() {
+        if err := conn.Close(); err != nil {
+            // Log the error but don't fail - connection is already closed
+            logger.Error.Printf("Error closing connection: %v", err)
+        }
+    }()
 
     // Process certificates
     certs := conn.ConnectionState().PeerCertificates

@@ -15,6 +15,15 @@ clean:
 lint:
 	golangci-lint run
 
+format:
+	go fmt ./...
+
+check-format:
+	@if [ -n "$$(go fmt ./...)" ]; then \
+		echo "Files not properly formatted. Run 'make format'"; \
+		exit 1; \
+	fi
+
 coverage:
 	go test -coverprofile=coverage.out ./...
 	go tool cover -html=coverage.out
