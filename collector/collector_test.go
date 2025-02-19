@@ -11,7 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"asachs01/remote-cert-exporter/config"
+	"github.com/asachs01/remote-cert-exporter/config"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 func TestCertificateCollector(t *testing.T) {
@@ -33,6 +34,7 @@ func TestCertificateCollector(t *testing.T) {
 	}
 	defer listener.Close()
 
+	// Accept connections in background
 	go func() {
 		for {
 			conn, err := listener.Accept()
@@ -51,8 +53,33 @@ func TestCertificateCollector(t *testing.T) {
 
 	collector := NewCertificateCollector("localhost", module)
 	
-	// Use prometheus testing utilities to verify metrics
-	// TODO: Add specific metric assertions
+	// Test metric collection
+	ch := make(chan prometheus.Metric, 10)
+	done := make(chan bool)
+
+	go func() {
+		collector.Collect(ch)
+		close(ch)
+		done <- true
+	}()
+
+	// Wait for collection to complete or timeout
+	select {
+	case <-done:
+		// Success
+	case <-time.After(10 * time.Second):
+		t.Fatal("Collection timed out")
+	}
+
+	// Verify metrics were collected
+	metrics := make([]prometheus.Metric, 0)
+	for m := range ch {
+		metrics = append(metrics, m)
+	}
+
+	if len(metrics) == 0 {
+		t.Error("No metrics were collected")
+	}
 }
 
 func generateTestCert() (*x509.Certificate, *rsa.PrivateKey, error) {

@@ -4,14 +4,16 @@ import (
     "crypto/tls"
     "flag"
     "fmt"
+    "net"
     "net/http"
+    "strings"
     "time"
 
     "github.com/prometheus/client_golang/prometheus"
     "github.com/prometheus/client_golang/prometheus/promhttp"
-    "asachs01/remote-cert-exporter/middleware"
-    "asachs01/remote-cert-exporter/logger"
-    "asachs01/remote-cert-exporter/config"
+    "github.com/asachs01/remote-cert-exporter/middleware"
+    "github.com/asachs01/remote-cert-exporter/logger"
+    "github.com/asachs01/remote-cert-exporter/config"
 )
 
 var (
@@ -51,21 +53,33 @@ func init() {
 }
 
 type Exporter struct {
-    targets []string
+    config *config.Config
 }
 
-func NewExporter(targets []string) *Exporter {
+func NewExporter(config *config.Config) *Exporter {
     return &Exporter{
-        targets: targets,
+        config: config,
     }
 }
 
 func (e *Exporter) scrapeTarget(target string) error {
-    conf := &tls.Config{
-        InsecureSkipVerify: false,
+    module := e.config.Modules["default"]
+    if module == nil {
+        return fmt.Errorf("no default module found in configuration")
     }
 
-    conn, err := tls.Dial("tcp", fmt.Sprintf("%s:443", target), conf)
+    conf := &tls.Config{
+        InsecureSkipVerify: module.InsecureSkipVerify,
+    }
+
+    // Use configured port if target doesn't specify one
+    if !strings.Contains(target, ":") {
+        target = fmt.Sprintf("%s:%d", target, module.Port)
+    }
+
+    conn, err := tls.DialWithDialer(&net.Dialer{
+        Timeout: module.Timeout,
+    }, "tcp", target, conf)
     if err != nil {
         return fmt.Errorf("failed to connect: %v", err)
     }
@@ -91,12 +105,25 @@ func (e *Exporter) scrapeTarget(target string) error {
     return nil
 }
 
-func (e *Exporter) collectMetrics() {
-    for _, target := range e.targets {
-        if err := e.scrapeTarget(target); err != nil {
-            scrapeErrorsTotal.With(prometheus.Labels{"host": target}).Inc()
-        }
+func (e *Exporter) probeHandler(w http.ResponseWriter, r *http.Request) {
+    target := r.URL.Query().Get("target")
+    if target == "" {
+        http.Error(w, "Target parameter is required", http.StatusBadRequest)
+        return
     }
+
+    // Reset metrics for previous targets
+    certExpirySeconds.Reset()
+    certNotAfterTimestamp.Reset()
+
+    if err := e.scrapeTarget(target); err != nil {
+        http.Error(w, fmt.Sprintf("Error scraping target: %v", err), http.StatusInternalServerError)
+        scrapeErrorsTotal.With(prometheus.Labels{"host": target}).Inc()
+        return
+    }
+
+    // Serve the metrics
+    promhttp.Handler().ServeHTTP(w, r)
 }
 
 func main() {

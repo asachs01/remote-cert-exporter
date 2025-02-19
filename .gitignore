@@ -4,7 +4,8 @@
 *.dll
 *.so
 *.dylib
-cert-exporter
+remote-cert-exporter
+- cert-exporter
 
 # Test binary, built with `go test -c`
 *.test

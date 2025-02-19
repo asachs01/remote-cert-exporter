@@ -105,3 +105,37 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 Feel free to open an issue with your question or reach out to the maintainers directly.
 
 Thank you for contributing!
+
+## Getting Started
+
+1. Fork the repository
+2. Clone your fork
+3. Create a new branch for your feature/fix
+4. Make your changes
+5. Run tests with `make test`
+6. Submit a pull request
+
+## Development Requirements
+
+- Go 1.21 or higher
+- Make
+- Docker (optional)
+
+## Running Tests
+
+```bash
+make test
+```
+
+## Building
+
+```bash
+make build
+```
+
+## Code Style
+
+- Follow standard Go formatting (use `gofmt`)
+- Add tests for new features
+- Update documentation as needed
+- Keep pull requests focused on a single change

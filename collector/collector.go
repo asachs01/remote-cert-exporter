@@ -2,16 +2,12 @@ package collector
 
 import (
     "crypto/tls"
-    "crypto/x509"
     "fmt"
     "net"
-    "net/http"
-    "net/url"
-    "strings"
     "time"
 
     "github.com/prometheus/client_golang/prometheus"
-    "asachs01/remote-cert-exporter/config"
+    "github.com/asachs01/remote-cert-exporter/config"
 )
 
 type CertificateCollector struct {
@@ -37,13 +33,46 @@ func NewCertificateCollector(target string, module *config.Module) *CertificateC
             []string{"host", "issuer", "subject", "serial", "position"},
             nil,
         ),
-        // ... other metric descriptors ...
+        certNotAfterTimestamp: prometheus.NewDesc(
+            "ssl_certificate_not_after_timestamp",
+            "Timestamp when the SSL certificate expires",
+            []string{"host", "issuer", "subject", "serial", "position"},
+            nil,
+        ),
+        certChainLength: prometheus.NewDesc(
+            "ssl_certificate_chain_length",
+            "Number of certificates in the chain",
+            []string{"host"},
+            nil,
+        ),
+        certSerial: prometheus.NewDesc(
+            "ssl_certificate_serial_number",
+            "Serial number of the certificate",
+            []string{"host", "issuer", "subject", "serial"},
+            nil,
+        ),
+        certKeyUsage: prometheus.NewDesc(
+            "ssl_certificate_key_usage",
+            "Key usage of the certificate",
+            []string{"host", "issuer", "subject", "serial", "usage"},
+            nil,
+        ),
+        certError: prometheus.NewDesc(
+            "ssl_certificate_error",
+            "Error encountered while collecting certificate metrics",
+            []string{"host", "error"},
+            nil,
+        ),
     }
 }
 
 func (c *CertificateCollector) Describe(ch chan<- *prometheus.Desc) {
     ch <- c.certExpirySeconds
-    // ... other descriptors ...
+    ch <- c.certNotAfterTimestamp
+    ch <- c.certChainLength
+    ch <- c.certSerial
+    ch <- c.certKeyUsage
+    ch <- c.certError
 }
 
 func (c *CertificateCollector) Collect(ch chan<- prometheus.Metric) {
@@ -54,18 +83,6 @@ func (c *CertificateCollector) Collect(ch chan<- prometheus.Metric) {
 
     dialer := &net.Dialer{
         Timeout: timeout,
-    }
-
-    // Handle proxy if configured
-    var transport *http.Transport
-    if c.module.ProxyURL != "" {
-        proxyURL, err := url.Parse(c.module.ProxyURL)
-        if err == nil {
-            transport = &http.Transport{
-                Proxy: http.ProxyURL(proxyURL),
-                DialContext: dialer.DialContext,
-            }
-        }
     }
 
     // Configure TLS
@@ -94,7 +111,7 @@ func (c *CertificateCollector) Collect(ch chan<- prometheus.Metric) {
     conn, err := tls.DialWithDialer(dialer, "tcp", 
         fmt.Sprintf("%s:%d", c.target, port), tlsConfig)
     if err != nil {
-        ch <- prometheus.NewMetric(
+        ch <- prometheus.MustNewConstMetric(
             c.certError,
             prometheus.GaugeValue,
             1.0,
@@ -110,7 +127,6 @@ func (c *CertificateCollector) Collect(ch chan<- prometheus.Metric) {
     for i, cert := range certs {
         position := fmt.Sprintf("%d", i)
         
-        // Basic expiry information
         ch <- prometheus.MustNewConstMetric(
             c.certExpirySeconds,
             prometheus.GaugeValue,
@@ -121,7 +137,5 @@ func (c *CertificateCollector) Collect(ch chan<- prometheus.Metric) {
             cert.SerialNumber.String(),
             position,
         )
-
-        // Additional certificate details...
     }
 } 

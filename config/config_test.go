@@ -1,8 +1,8 @@
 package config
 
 import (
+	"os"
 	"testing"
-	"time"
 )
 
 func TestLoadConfig(t *testing.T) {
@@ -36,7 +36,29 @@ modules:
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// TODO: Write to temp file and test LoadConfig
+			// Create temporary file
+			tmpfile, err := os.CreateTemp("", "config-*.yml")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer os.Remove(tmpfile.Name())
+
+			// Write config to temp file
+			if _, err := tmpfile.Write([]byte(tc.configYaml)); err != nil {
+				t.Fatal(err)
+			}
+			if err := tmpfile.Close(); err != nil {
+				t.Fatal(err)
+			}
+
+			// Test LoadConfig
+			_, err = LoadConfig(tmpfile.Name())
+			if tc.expectError && err == nil {
+				t.Error("expected error but got none")
+			}
+			if !tc.expectError && err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
 		})
 	}
 } 

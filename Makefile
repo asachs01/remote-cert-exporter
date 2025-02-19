@@ -1,7 +1,7 @@
 .PHONY: build test docker clean
 
 build:
-	go build -o cert-exporter
+	go build -o remote-cert-exporter
 
 test:
 	go test -v ./...
