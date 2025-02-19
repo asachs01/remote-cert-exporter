@@ -17,15 +17,15 @@ builds:
 
 dockers:
   - image_templates:
-      - "ghcr.io/{{ .Env.GITHUB_REPOSITORY }}/cert-exporter:{{ .Version }}"
-      - "ghcr.io/{{ .Env.GITHUB_REPOSITORY }}/cert-exporter:latest"
-      - "{{ .Env.DOCKERHUB_USERNAME }}/cert-exporter:{{ .Version }}"
-      - "{{ .Env.DOCKERHUB_USERNAME }}/cert-exporter:latest"
+      - "asachs01/remote-cert-exporter:{{ .Version }}"
+      - "asachs01/remote-cert-exporter:latest"
+      - "ghcr.io/asachs01/remote-cert-exporter:{{ .Version }}"
+      - "ghcr.io/asachs01/remote-cert-exporter:latest"
     dockerfile: Dockerfile
     build_flag_templates:
       - "--platform=linux/amd64"
       - "--label=org.opencontainers.image.created={{.Date}}"
-      - "--label=org.opencontainers.image.title=cert-exporter"
+      - "--label=org.opencontainers.image.title=remote-cert-exporter"
       - "--label=org.opencontainers.image.revision={{.FullCommit}}"
       - "--label=org.opencontainers.image.version={{.Version}}"
 
@@ -54,9 +54,8 @@ changelog:
       - '^docs:'
       - '^test:'
       - '^ci:'
-      - '^chore:'
 
 release:
   github:
-    owner: "{{ .Env.GITHUB_REPOSITORY_OWNER }}"
-    name: "cert-exporter" 
+    owner: asachs01
+    name: "remote-cert-exporter" 
