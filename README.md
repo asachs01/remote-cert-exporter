@@ -308,3 +308,25 @@ To verify everything is working:
   - The port is correct (default 443)
   - Your network allows the connection
 - If you see certificate chain errors, you might need to set `insecure_skip_verify: true` for testing
+
+### Quick Install (Linux)
+
+Install using our convenience script:
+
+```bash
+# Install latest version
+curl -sSL https://raw.githubusercontent.com/asachs01/remote-cert-exporter/main/scripts/get.sh | sudo bash
+
+# Install specific version
+curl -sSL https://raw.githubusercontent.com/asachs01/remote-cert-exporter/main/scripts/get.sh | VERSION=0.1.0 sudo bash
+
+# Install to different directory
+curl -sSL https://raw.githubusercontent.com/asachs01/remote-cert-exporter/main/scripts/get.sh | INSTALL_DIR=/opt/remote-cert-exporter sudo bash
+```
+
+The script will:
+1. Detect your system architecture
+2. Download the appropriate release
+3. Create a system user and group
+4. Install the binary and systemd service
+5. Set up default configuration
