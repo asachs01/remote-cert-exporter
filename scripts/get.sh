@@ -26,6 +26,14 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+# Check for required commands
+for cmd in curl tar systemctl; do
+    if ! command -v $cmd >/dev/null 2>&1; then
+        echo_error "$cmd is required but not installed"
+        exit 1
+    fi
+done
+
 # Create temporary directory
 TMP_DIR=$(mktemp -d)
 cleanup() {
@@ -50,7 +58,13 @@ esac
 
 # Download latest release if version not specified
 if [ "$VERSION" = "latest" ]; then
-    VERSION=$(curl -s https://api.github.com/repos/${GITHUB_REPO}/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+    echo_info "Fetching latest version..."
+    VERSION=$(curl -sL https://api.github.com/repos/${GITHUB_REPO}/releases/latest | 
+        grep -Po '"tag_name": "\K[^"]*' || echo "")
+    if [ -z "$VERSION" ]; then
+        echo_error "Failed to fetch latest version"
+        exit 1
+    fi
 fi
 VERSION=${VERSION#v} # Remove 'v' prefix if present
 
@@ -59,8 +73,33 @@ echo_info "Installing remote-cert-exporter version ${VERSION}"
 # Download and extract release
 DOWNLOAD_URL="https://github.com/${GITHUB_REPO}/releases/download/v${VERSION}/remote-cert-exporter_${OS}_${ARCH}.tar.gz"
 echo_info "Downloading from ${DOWNLOAD_URL}"
-curl -L -o "$TMP_DIR/remote-cert-exporter.tar.gz" "$DOWNLOAD_URL"
-tar xzf "$TMP_DIR/remote-cert-exporter.tar.gz" -C "$TMP_DIR"
+
+# Download with better error handling
+if ! curl -L --fail -o "$TMP_DIR/remote-cert-exporter.tar.gz" "$DOWNLOAD_URL"; then
+    echo_error "Failed to download release. Please check:"
+    echo "  - The version exists (${VERSION})"
+    echo "  - Your internet connection"
+    echo "  - GitHub is accessible"
+    exit 1
+fi
+
+# Verify the download
+if [ ! -s "$TMP_DIR/remote-cert-exporter.tar.gz" ]; then
+    echo_error "Downloaded file is empty"
+    exit 1
+fi
+
+# Extract with error handling
+if ! tar xzf "$TMP_DIR/remote-cert-exporter.tar.gz" -C "$TMP_DIR"; then
+    echo_error "Failed to extract archive"
+    exit 1
+fi
+
+# Verify binary exists
+if [ ! -f "$TMP_DIR/remote-cert-exporter" ]; then
+    echo_error "Binary not found in archive"
+    exit 1
+fi
 
 # Create user and group if they don't exist
 if ! getent group "$SERVICE_GROUP" >/dev/null; then
