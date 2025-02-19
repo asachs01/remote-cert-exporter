@@ -41,20 +41,9 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Determine system architecture
-ARCH=$(uname -m)
-case $ARCH in
-    x86_64) ARCH="amd64" ;;
-    aarch64) ARCH="arm64" ;;
-    *) echo_error "Unsupported architecture: $ARCH"; exit 1 ;;
-esac
-
-# Determine OS
-OS=$(uname -s | tr '[:upper:]' '[:lower:]')
-case $OS in
-    linux) ;;
-    *) echo_error "Unsupported operating system: $OS"; exit 1 ;;
-esac
+# Detect OS and architecture
+OS=$(uname -s) # Keep original case (Linux)
+ARCH=$(uname -m) # Keep original case (x86_64)
 
 # Download latest release if version not specified
 if [ "$VERSION" = "latest" ]; then
