@@ -46,6 +46,11 @@ archives:
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else }}{{ .Arch }}{{ end }}
+    files:
+      - remote-cert-exporter.yml
+      - scripts/remote-cert-exporter.service
+      - README.md
+      - LICENSE*
     format_overrides:
       - goos: windows
         format: zip
@@ -67,4 +72,7 @@ changelog:
 release:
   github:
     owner: asachs01
-    name: "remote-cert-exporter" 
+    name: "remote-cert-exporter"
+  extra_files:
+    - glob: ./scripts/remote-cert-exporter.service
+    - glob: ./remote-cert-exporter.yml 

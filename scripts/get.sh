@@ -84,7 +84,7 @@ if ! tar xzf "$TMP_DIR/remote-cert-exporter.tar.gz" -C "$TMP_DIR"; then
     exit 1
 fi
 
-# Verify binary exists
+# Verify files exist
 if [ ! -f "$TMP_DIR/remote-cert-exporter" ]; then
     echo_error "Binary not found in archive"
     exit 1
@@ -114,21 +114,29 @@ mkdir -p "$LOG_DIR"
 cp "$TMP_DIR/remote-cert-exporter" "$INSTALL_DIR/"
 chmod 755 "$INSTALL_DIR/remote-cert-exporter"
 
-# Download and install systemd service
-curl -L -o "/etc/systemd/system/remote-cert-exporter.service" \
-    "https://raw.githubusercontent.com/${GITHUB_REPO}/v${VERSION}/scripts/remote-cert-exporter.service"
-chmod 644 "/etc/systemd/system/remote-cert-exporter.service"
+# Install systemd service
+if [ -f "$TMP_DIR/scripts/remote-cert-exporter.service" ]; then
+    cp "$TMP_DIR/scripts/remote-cert-exporter.service" "/etc/systemd/system/"
+    chmod 644 "/etc/systemd/system/remote-cert-exporter.service"
+else
+    echo_error "Service file not found in archive"
+    exit 1
+fi
 
-# Download default config if it doesn't exist
+# Install config if it doesn't exist
 if [ ! -f "$CONFIG_DIR/remote-cert-exporter.yml" ]; then
-    curl -L -o "$CONFIG_DIR/remote-cert-exporter.yml" \
-        "https://raw.githubusercontent.com/${GITHUB_REPO}/v${VERSION}/remote-cert-exporter.yml"
+    if [ -f "$TMP_DIR/remote-cert-exporter.yml" ]; then
+        cp "$TMP_DIR/remote-cert-exporter.yml" "$CONFIG_DIR/"
+        chmod 644 "$CONFIG_DIR/remote-cert-exporter.yml"
+    else
+        echo_error "Config file not found in archive"
+        exit 1
+    fi
 fi
 
 # Set permissions
 chown -R "$SERVICE_USER:$SERVICE_GROUP" "$CONFIG_DIR"
 chown -R "$SERVICE_USER:$SERVICE_GROUP" "$LOG_DIR"
-chmod 644 "$CONFIG_DIR/remote-cert-exporter.yml"
 
 # Reload systemd
 systemctl daemon-reload
