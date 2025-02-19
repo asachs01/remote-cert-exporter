@@ -36,14 +36,13 @@ modules:
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			// Create temporary file
 			tmpfile, err := os.CreateTemp("", "config-*.yml")
 			if err != nil {
 				t.Fatal(err)
 			}
 			defer os.Remove(tmpfile.Name())
 
-			// Write config to temp file
+			// Write config and check error
 			if _, err := tmpfile.Write([]byte(tc.configYaml)); err != nil {
 				t.Fatal(err)
 			}
