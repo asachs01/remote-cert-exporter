@@ -58,7 +58,7 @@ func TestCertificateCollector(t *testing.T) {
 	}
 
 	collector := NewCertificateCollector("localhost", module)
-	
+
 	// Test metric collection
 	ch := make(chan prometheus.Metric, 10)
 	done := make(chan bool)
@@ -115,4 +115,4 @@ func generateTestCert() (*x509.Certificate, *rsa.PrivateKey, error) {
 	}
 
 	return cert, priv, nil
-} 
+}

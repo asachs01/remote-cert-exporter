@@ -55,7 +55,7 @@ func InstrumentHandler(next http.Handler) http.Handler {
 
 		duration := time.Since(start).Seconds()
 		status := http.StatusText(rw.status)
-		
+
 		requestDuration.WithLabelValues(r.URL.Path, status).Observe(duration)
 		requestsTotal.WithLabelValues(r.URL.Path, status).Inc()
 	})
@@ -71,4 +71,4 @@ func ErrorHandler(next http.Handler) http.Handler {
 		}()
 		next.ServeHTTP(w, r)
 	})
-} 
+}

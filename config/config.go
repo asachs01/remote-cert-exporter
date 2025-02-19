@@ -9,17 +9,17 @@ import (
 
 type Config struct {
 	Modules map[string]*Module `yaml:"modules"`
-	Targets []string          `yaml:"targets"`
+	Targets []string           `yaml:"targets"`
 }
 
 type Module struct {
-	Prober             string        `yaml:"prober"`           // tcp or http
-	Timeout            time.Duration `yaml:"timeout"`          // Overall timeout for the check
-	Port               int          `yaml:"port"`             // Default port if not specified in target
-	ProxyURL           string        `yaml:"proxy_url"`        // Optional HTTP proxy
-	ValidateChain      bool          `yaml:"validate_chain"`   // Whether to validate the entire chain
+	Prober             string        `yaml:"prober"`               // tcp or http
+	Timeout            time.Duration `yaml:"timeout"`              // Overall timeout for the check
+	Port               int           `yaml:"port"`                 // Default port if not specified in target
+	ProxyURL           string        `yaml:"proxy_url"`            // Optional HTTP proxy
+	ValidateChain      bool          `yaml:"validate_chain"`       // Whether to validate the entire chain
 	InsecureSkipVerify bool          `yaml:"insecure_skip_verify"` // Skip certificate validation
-	ClientCert         *ClientCert   `yaml:"client_cert"`      // Optional client certificate
+	ClientCert         *ClientCert   `yaml:"client_cert"`          // Optional client certificate
 }
 
 type ClientCert struct {
@@ -40,4 +40,4 @@ func LoadConfig(configPath string) (*Config, error) {
 	}
 
 	return config, nil
-} 
+}

@@ -30,4 +30,4 @@ func TestLoggers(t *testing.T) {
 	if !strings.Contains(errBuf.String(), "test error message") {
 		t.Error("Error log doesn't contain test message")
 	}
-} 
+}
