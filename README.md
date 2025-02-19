@@ -39,6 +39,43 @@ make build
 make docker
 ```
 
+### Systemd Service Installation
+
+The exporter can be installed as a systemd service using the provided convenience scripts:
+
+```bash
+# Install the service (requires root/sudo)
+sudo ./scripts/install.sh
+
+# The installer will:
+# 1. Create a system user and group (remote-cert-exporter)
+# 2. Install the binary to /usr/local/bin
+# 3. Create config directory at /etc/remote-cert-exporter
+# 4. Set up logging directory at /var/log/remote-cert-exporter
+# 5. Install and configure the systemd service
+
+# After installation:
+sudo systemctl start remote-cert-exporter  # Start the service
+sudo systemctl enable remote-cert-exporter # Enable at boot
+
+# Check the status
+sudo systemctl status remote-cert-exporter
+
+# View logs
+sudo journalctl -u remote-cert-exporter
+```
+
+To uninstall the service:
+```bash
+sudo ./scripts/uninstall.sh
+```
+
+The uninstaller will:
+- Stop and disable the service
+- Remove the binary and service files
+- Remove the system user and group
+- Preserve configuration and log files (can be removed manually if desired)
+
 ## Usage
 
 ### Running the exporter
