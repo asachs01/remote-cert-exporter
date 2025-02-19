@@ -5,6 +5,11 @@ on:
     tags:
       - 'v*'
 
+# Add these permissions
+permissions:
+  contents: write
+  packages: write  # This is needed for ghcr.io
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
