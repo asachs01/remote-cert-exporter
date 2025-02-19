@@ -27,4 +27,11 @@ jobs:
         version: latest
 
     - name: Build
-      run: make build 
+      run: make build
+
+  lint-fix:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run linter fix
+      run: golangci-lint run --fix 

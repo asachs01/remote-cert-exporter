@@ -52,9 +52,14 @@ func TestCertificateCollector(t *testing.T) {
 	}()
 
 	// Test the collector
+	addr, ok := listener.Addr().(*net.TCPAddr)
+	if !ok {
+		t.Fatal("Failed to get TCP address from listener")
+	}
+
 	module := &config.Module{
 		Timeout: 5 * time.Second,
-		Port:    listener.Addr().(*net.TCPAddr).Port,
+		Port:    addr.Port,
 	}
 
 	collector := NewCertificateCollector("localhost", module)

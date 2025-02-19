@@ -83,7 +83,11 @@ func (e *Exporter) scrapeTarget(target string) error {
 	if err != nil {
 		return fmt.Errorf("failed to connect: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		if err := conn.Close(); err != nil {
+			logger.Error.Printf("Error closing connection: %v", err)
+		}
+	}()
 
 	cert := conn.ConnectionState().PeerCertificates[0]
 
