@@ -1,0 +1,47 @@
+groups:
+- name: SSLCertificateAlerts
+  rules:
+  - alert: SSLCertificateExpiringInOneMonth
+    expr: ssl_certificate_expiry_seconds < (30 * 24 * 3600)  # 30 days
+    for: 1h
+    labels:
+      severity: warning
+    annotations:
+      summary: "SSL Certificate expiring soon for {{ $labels.host }}"
+      description: |
+        SSL Certificate for {{ $labels.host }} will expire in {{ $value | humanizeDuration }}
+        Issuer: {{ $labels.issuer }}
+        Subject: {{ $labels.subject }}
+
+  - alert: SSLCertificateExpiringInOneWeek
+    expr: ssl_certificate_expiry_seconds < (7 * 24 * 3600)  # 7 days
+    for: 1h
+    labels:
+      severity: critical
+    annotations:
+      summary: "SSL Certificate expiring very soon for {{ $labels.host }}"
+      description: |
+        SSL Certificate for {{ $labels.host }} will expire in {{ $value | humanizeDuration }}
+        Issuer: {{ $labels.issuer }}
+        Subject: {{ $labels.subject }}
+
+  - alert: SSLCertificateExpired
+    expr: ssl_certificate_expiry_seconds <= 0
+    for: 5m
+    labels:
+      severity: critical
+    annotations:
+      summary: "SSL Certificate expired for {{ $labels.host }}"
+      description: |
+        SSL Certificate for {{ $labels.host }} has expired
+        Issuer: {{ $labels.issuer }}
+        Subject: {{ $labels.subject }}
+
+  - alert: SSLCertificateScrapeError
+    expr: rate(ssl_certificate_scrape_errors_total[5m]) > 0
+    for: 15m
+    labels:
+      severity: warning
+    annotations:
+      summary: "SSL Certificate scrape failing for {{ $labels.host }}"
+      description: "Unable to scrape SSL certificate information from {{ $labels.host }}" 

@@ -1,0 +1,25 @@
+# Remote Certificate Exporter scrape config
+scrape_configs:
+  # Standard metrics endpoint
+  - job_name: 'remote-cert-exporter'
+    static_configs:
+      - targets: ['localhost:9117']
+    metrics_path: /metrics
+
+  # Certificate probe endpoint
+  - job_name: 'ssl-certificates'
+    metrics_path: /probe
+    scrape_interval: 1h  # Check certificates hourly
+    scrape_timeout: 30s
+    static_configs:
+      - targets:  # Add your domains to monitor
+        - example.com
+        - api.example.com:443
+        - secure.example.com
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: localhost:9117  # The remote-cert-exporter's address 
